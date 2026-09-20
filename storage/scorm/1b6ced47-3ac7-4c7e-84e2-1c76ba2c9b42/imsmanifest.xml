@@ -1,0 +1,151 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<manifest identifier="_6DoPM4dVAg0" version="1.0" xmlns="http://www.imsproject.org/xsd/imscp_rootv1p1p2" xmlns:adlcp="http://www.adlnet.org/xsd/adlcp_rootv1p2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.imsproject.org/xsd/imscp_rootv1p1p2 imscp_rootv1p1p2.xsd http://www.imsglobal.org/xsd/imsmd_rootv1p2p1 imsmd_rootv1p2p1.xsd http://www.adlnet.org/xsd/adlcp_rootv1p2 adlcp_rootv1p2.xsd">
+  <metadata>
+    <schema>ADL SCORM</schema>
+    <schemaversion>1.2</schemaversion>
+    <lom xmlns="http://www.imsglobal.org/xsd/imsmd_rootv1p2p1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsmd_rootv1p2p1 imsmd_rootv1p2p1.xsd">
+      <general>
+        <title>
+          <langstring xml:lang="x-none">VIS Library l Email Etiquette I Demo</langstring>
+        </title>
+      </general>
+      <lifecycle>
+        <version>
+          <langstring xml:lang="x-none">1</langstring>
+        </version>
+        <status>
+          <source>
+            <langstring xml:lang="x-none">LOMv1.0</langstring>
+          </source>
+          <value>
+            <langstring xml:lang="x-none">Final</langstring>
+          </value>
+        </status>
+      </lifecycle>
+      <metametadata>
+        <metadatascheme>ADL SCORM 1.2</metadatascheme>
+      </metametadata>
+      <educational>
+        <typicallearningtime>
+          <datetime>PT0H0M0S</datetime>
+        </typicallearningtime>
+      </educational>
+      <rights>
+        <cost>
+          <source>
+            <langstring xml:lang="x-none">LOMv1.0</langstring>
+          </source>
+          <value>
+            <langstring xml:lang="x-none">yes</langstring>
+          </value>
+        </cost>
+        <copyrightandotherrestrictions>
+          <source>
+            <langstring xml:lang="x-none">LOMv1.0</langstring>
+          </source>
+          <value>
+            <langstring xml:lang="x-none">yes</langstring>
+          </value>
+        </copyrightandotherrestrictions>
+      </rights>
+    </lom>
+  </metadata>
+  <organizations default="VIS_Library_l_Email_Etiquette_I_Demo_ORG">
+    <organization identifier="VIS_Library_l_Email_Etiquette_I_Demo_ORG">
+      <title>VIS Library l Email Etiquette I Demo</title>
+      <item identifier="Email-_Ettiquate_SCO" isvisible="true" identifierref="__6DoPM4dVAg0_RES">
+        <title>VIS Library l Email Etiquette I Demo</title>
+      </item>
+    </organization>
+  </organizations>
+  <resources>
+    <resource identifier="__6DoPM4dVAg0_RES" type="webcontent" href="index_lms.html" adlcp:scormtype="sco">
+      <file href="story_content/thumbnail.jpg" />
+      <file href="story_content/video_5kc6bClbRwN_9_48_1920x1080.mp4" />
+      <file href="mobile/poster_6g2nRuMa7uI_video_5kc6bClbRwN_9_48_1920x1080.jpg" />
+      <file href="story_content/video_6lKMcNFx5I1_9_48_1920x1080.mp4" />
+      <file href="mobile/poster_5tmQL7hvIjk_video_6lKMcNFx5I1_9_48_1920x1080.jpg" />
+      <file href="story_content/video_669KOJlUTUC_9_48_1920x1080.mp4" />
+      <file href="mobile/poster_6fx2fkiCzOV_video_669KOJlUTUC_9_48_1920x1080.jpg" />
+      <file href="story_content/video_5W5YrsP87O8_9_48_1920x1080.mp4" />
+      <file href="mobile/poster_6HfmnxGzoKk_video_5W5YrsP87O8_9_48_1920x1080.jpg" />
+      <file href="story_content/video_6eBJU6p0Wev_9_48_1920x1080.mp4" />
+      <file href="mobile/poster_5rrQTEOJTAC_video_6eBJU6p0Wev_9_48_1920x1080.jpg" />
+      <file href="story_content/video_612RY6VDnHo_9_48_1920x1080.mp4" />
+      <file href="mobile/poster_6EIdCL2mIn9_video_612RY6VDnHo_9_48_1920x1080.jpg" />
+      <file href="story_content/video_6iexyQ85wNc_9_48_1920x1080.mp4" />
+      <file href="mobile/poster_5lLju2YZ3VR_video_6iexyQ85wNc_9_48_1920x1080.jpg" />
+      <file href="story_content/video_5sBbjm30J8F_9_48_1920x1080.mp4" />
+      <file href="mobile/poster_6P6j8HD3sKJ_video_5sBbjm30J8F_9_48_1920x1080.jpg" />
+      <file href="story_content/video_5jJfYsHJD8l_9_48_1920x1080.mp4" />
+      <file href="mobile/poster_5hhSHm4fTFn_video_5jJfYsHJD8l_9_48_1920x1080.jpg" />
+      <file href="story_content/video_6ZuTnxM3MxM_9_48_1920x1080.mp4" />
+      <file href="mobile/poster_6BaOdnCvp1N_video_6ZuTnxM3MxM_9_48_1920x1080.jpg" />
+      <file href="story_content/video_5okTXRk9yzn_9_48_1280x636.mp4" />
+      <file href="mobile/poster_6BqIxQPSoPZ_video_5okTXRk9yzn_9_48_1280x636.jpg" />
+      <file href="story_content/6EkDxpgrQdh.js" />
+      <file href="mobile/6piYbX0KUqP_M_266_266.png" />
+      <file href="story_content/6ZwVqoZxrXs_44100_48_0.mp3" />
+      <file href="story_content/video_6Zi2w5Q4HiT_9_48_1920x1080.mp4" />
+      <file href="mobile/poster_5aAgO7acEPg_video_6Zi2w5Q4HiT_9_48_1920x1080.jpg" />
+      <file href="story_content/video_6OZHnkxdQtu_9_48_1920x1080.mp4" />
+      <file href="mobile/poster_6kkrkk4pehk_video_6OZHnkxdQtu_9_48_1920x1080.jpg" />
+      <file href="story_content/video_6oKKO8sxzIj_9_48_1920x1080.mp4" />
+      <file href="mobile/poster_6cz4R39PuW8_video_6oKKO8sxzIj_9_48_1920x1080.jpg" />
+      <file href="story_content/video_5uJtABzdJDf_9_48_1920x1080.mp4" />
+      <file href="mobile/poster_6mNcgVtLESZ_video_5uJtABzdJDf_9_48_1920x1080.jpg" />
+      <file href="story_content/video_6N7teeEPrRe_9_48_1920x1080.mp4" />
+      <file href="mobile/poster_6aGeciVf36w_video_6N7teeEPrRe_9_48_1920x1080.jpg" />
+      <file href="story_content/video_64IbHmZNREb_9_48_1920x1080.mp4" />
+      <file href="mobile/poster_6VJMfdQOfdz_video_64IbHmZNREb_9_48_1920x1080.jpg" />
+      <file href="mobile/5fvr1WiQyYJ.png" />
+      <file href="story_content/6Fdhc8L6Pl2_44100_48_0.mp3" />
+      <file href="story_content/5wuE0nX19KC_44100_48_0.mp3" />
+      <file href="mobile/5xDooMkJEzt_P_0_0_1024_727.jpg" />
+      <file href="meta.xml" />
+      <file href="story_content/triggers.js" />
+      <file href="story_content/user.js" />
+      <file href="mobile/Shape6ALccp6WZeY.png" />
+      <file href="mobile/Shape5uCXOIYqFS2.png" />
+      <file href="mobile/Shape5UpcJBjvfUl.png" />
+      <file href="mobile/Shape6ZPviLlR9ln.png" />
+      <file href="mobile/Shape5jcXGSlv4a5.png" />
+      <file href="mobile/Shape67ZAvRWSTEL.png" />
+      <file href="html5/data/css/output.min.css" />
+      <file href="html5/data/js/5atG21WOEvZ.js" />
+      <file href="html5/data/js/5jrnZGNR2ML.js" />
+      <file href="html5/data/js/5l2sbTkdQNB.js" />
+      <file href="html5/data/js/5mCTqEtjDTz.js" />
+      <file href="html5/data/js/5mM85uTsxgX.js" />
+      <file href="html5/data/js/5qIE6iiPQHi.js" />
+      <file href="html5/data/js/5rIYlI6C5HX.js" />
+      <file href="html5/data/js/5tyeFNLnEY0.js" />
+      <file href="html5/data/js/5ZNNb8UvE9n.js" />
+      <file href="html5/data/js/5zUeISltNzL.js" />
+      <file href="html5/data/js/68ZR2XnxYKb.js" />
+      <file href="html5/data/js/69LjZb0INWV.js" />
+      <file href="html5/data/js/6mYMakB8j4C.js" />
+      <file href="html5/data/js/6qmxckjtlUM.js" />
+      <file href="html5/data/js/data.js" />
+      <file href="html5/data/js/frame.js" />
+      <file href="html5/data/js/paths.js" />
+      <file href="html5/lib/scripts/bootstrapper.min.js" />
+      <file href="html5/lib/scripts/frame.desktop.min.js" />
+      <file href="html5/lib/scripts/frame.mobile.min.js" />
+      <file href="html5/lib/scripts/slides.min.js" />
+      <file href="html5/lib/stylesheets/desktop.min.css" />
+      <file href="html5/lib/stylesheets/mobile.min.css" />
+      <file href="html5/lib/stylesheets/mobile-fonts/open-sans-bold.woff" />
+      <file href="html5/lib/stylesheets/mobile-fonts/open-sans-light.woff" />
+      <file href="html5/lib/stylesheets/mobile-fonts/open-sans-regular.woff" />
+      <file href="analytics-frame.html" />
+      <file href="story.html" />
+      <file href="index_lms.html" />
+      <file href="lms/AICCComm.html" />
+      <file href="lms/blank.html" />
+      <file href="lms/browsersniff.js" />
+      <file href="lms/goodbye.html" />
+      <file href="lms/scormdriver.js" />
+    </resource>
+  </resources>
+</manifest>
