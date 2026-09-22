@@ -28,6 +28,10 @@ model User {
   banReason  String?
   banExpires DateTime?
 
+  coursesCreated Course[]     @relation("CourseCreatedBy")
+  enrollments    Enrollment[]
+  attempts       Attempt[]
+
   @@unique([email])
   @@map("user")
 }
@@ -80,4 +84,78 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+
+//new models for course
+
+model Course {
+  id              String   @id @default(cuid())
+  title           String
+  description     String?
+  thumbnailUrl    String?
+
+  scormVersion    String   // "1.2" | "2004"
+  entryPoint      String   // e.g. "index_lms.html"
+  storageBasePath String   // e.g. "courses/course_101/"
+
+  status          String   @default("draft") // "draft" | "published" | "archived"
+
+  createdById     String
+  createdBy       User     @relation("CourseCreatedBy", fields: [createdById], references: [id])
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  enrollments     Enrollment[]
+  attempts        Attempt[]
+
+  @@map("course")
+}
+
+model Enrollment {
+  id         String   @id @default(cuid())
+
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  courseId   String
+  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  status     String   @default("active") // "active" | "completed" | "dropped"
+  enrolledAt DateTime @default(now())
+
+  @@unique([userId, courseId])
+  @@map("enrollment")
+}
+
+model Attempt {
+  id             String    @id @default(cuid())
+
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  courseId       String
+  course         Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  attemptNumber  Int       @default(1)
+  status         String    @default("not-started") // "not-started" | "incomplete" | "completed" | "passed" | "failed"
+
+  score          Float?
+  scoreMin       Float?
+  scoreMax       Float?
+
+  sessionTime    String?   // e.g. "00:15:32"
+  totalTime      String?
+  lessonLocation String?   // bookmark
+  suspendData    String?   @db.Text
+
+  rawCmiData     Json?     // catch-all for anything not mapped above
+
+  completedAt    DateTime?
+  lastAccessedAt DateTime  @default(now())
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@map("attempt")
 }
