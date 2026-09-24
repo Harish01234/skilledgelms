@@ -63,13 +63,11 @@ export default async function AdminCoursesPage() {
                     {course.title} 
                   </TableCell>
 
-                  <TableCell className="font-medium text-foreground">
-                    {course.id}
+                  <TableCell>
+                    {course.scormVersion}
                   </TableCell>
                   
-                  <TableCell className="text-muted-foreground">
-                    {course.id}
-                  </TableCell>
+                
                   <TableCell>
                     <Badge variant={statusVariant[course.status] ?? "outline"}>
                       {course.status}

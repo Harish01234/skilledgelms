@@ -20,6 +20,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { CourseAssignDialog } from "@/components/course-assign-dialog";
 
 export function CourseRowActions({
   courseId,
@@ -30,6 +31,7 @@ export function CourseRowActions({
 }) {
   const router = useRouter();
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [assignOpen, setAssignOpen] = useState(false);
   const [busy, setBusy] = useState(false);
 
   async function togglePublish() {
@@ -65,6 +67,9 @@ export function CourseRowActions({
           <MoreHorizontal className="h-4 w-4" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={() => setAssignOpen(true)}>
+            Assign students
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={togglePublish}>
             {status === "published" ? "Unpublish" : "Publish"}
           </DropdownMenuItem>
@@ -76,6 +81,12 @@ export function CourseRowActions({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <CourseAssignDialog
+        courseId={courseId}
+        open={assignOpen}
+        onOpenChange={setAssignOpen}
+      />
 
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <AlertDialogContent>
