@@ -24,7 +24,7 @@ function AdminPage() {
 
         <CardContent>
           <Link
-            href="/admin/course/page"
+            href="/admin/courses"
             className={buttonVariants()}
           >
             Create Course

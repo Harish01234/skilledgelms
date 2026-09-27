@@ -51,7 +51,7 @@ export function Navbar() {
           href="/"
           className="font-medium text-foreground"
         >
-          Interest3
+          Skilledgelms
         </Link>
 
         <nav className="flex items-center gap-3">

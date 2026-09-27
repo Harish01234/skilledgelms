@@ -66,6 +66,8 @@ type SearchField = 'name' | 'email'
 type SearchOperator = 'contains' | 'starts_with' | 'ends_with'
 type SortDirection = 'asc' | 'desc'
 type StatusFilter = 'all' | 'active' | 'banned'
+type RoleValue = 'admin' | 'user'
+type RoleFilter = 'all' | RoleValue
 
 const PAGE_SIZE = 10
 
@@ -310,13 +312,16 @@ function ChangeRoleDialog({
   onOpenChange: (open: boolean) => void
   onSuccess: () => void
 }) {
-  const [role, setRole] = useState('user')
+  // FIX 1: typed as the literal union authClient.admin.setRole expects,
+  // instead of a bare string.
+  const [role, setRole] = useState<RoleValue>('user')
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     if (user) {
       const currentRole = getRole(user)
-      setRole(currentRole.split(',')[0] || 'user')
+      const first = currentRole.split(',')[0]
+      setRole(first === 'admin' ? 'admin' : 'user')
     }
   }, [user])
 
@@ -369,7 +374,16 @@ function ChangeRoleDialog({
           <div className="space-y-2">
             <Label>Role</Label>
 
-            <Select value={role} onValueChange={setRole}>
+            {/* FIX 2: guard against null before calling setRole,
+                since Base UI's Select can call onValueChange(null, ...) */}
+            <Select
+              value={role}
+              onValueChange={(value) => {
+                if (value === 'admin' || value === 'user') {
+                  setRole(value)
+                }
+              }}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select role" />
               </SelectTrigger>
@@ -597,7 +611,13 @@ function BanUserDialog({
           <div className="space-y-2">
             <Label>Ban duration</Label>
 
-            <Select value={duration} onValueChange={setDuration}>
+            {/* FIX 3: guard against null before calling setDuration */}
+            <Select
+              value={duration}
+              onValueChange={(value) => {
+                if (value !== null) setDuration(value)
+              }}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
@@ -716,7 +736,7 @@ export function AdminUsers() {
     useState<SearchOperator>('contains')
 
   const [status, setStatus] = useState<StatusFilter>('all')
-  const [role, setRole] = useState('all')
+  const [role, setRole] = useState<RoleFilter>('all')
 
   const [sortBy, setSortBy] = useState('createdAt')
   const [sortDirection, setSortDirection] =
@@ -917,9 +937,11 @@ export function AdminUsers() {
 
               <Select
                 value={searchField}
-                onValueChange={(value) =>
-                  setSearchField(value as SearchField)
-                }
+                onValueChange={(value) => {
+                  if (value === 'name' || value === 'email') {
+                    setSearchField(value)
+                  }
+                }}
               >
                 <SelectTrigger className="w-full lg:w-36">
                   <SelectValue />
@@ -933,9 +955,15 @@ export function AdminUsers() {
 
               <Select
                 value={searchOperator}
-                onValueChange={(value) =>
-                  setSearchOperator(value as SearchOperator)
-                }
+                onValueChange={(value) => {
+                  if (
+                    value === 'contains' ||
+                    value === 'starts_with' ||
+                    value === 'ends_with'
+                  ) {
+                    setSearchOperator(value)
+                  }
+                }}
               >
                 <SelectTrigger className="w-full lg:w-40">
                   <SelectValue />
@@ -954,7 +982,16 @@ export function AdminUsers() {
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <Select value={role} onValueChange={setRole}>
+              {/* FIX 4: guard against null before calling setRole here too
+                  — same bare-setState issue as the other Selects */}
+              <Select
+                value={role}
+                onValueChange={(value) => {
+                  if (value === 'all' || value === 'admin' || value === 'user') {
+                    setRole(value)
+                  }
+                }}
+              >
                 <SelectTrigger className="w-full sm:w-40">
                   <SelectValue placeholder="Role" />
                 </SelectTrigger>
@@ -968,9 +1005,11 @@ export function AdminUsers() {
 
               <Select
                 value={status}
-                onValueChange={(value) =>
-                  setStatus(value as StatusFilter)
-                }
+                onValueChange={(value) => {
+                  if (value === 'all' || value === 'active' || value === 'banned') {
+                    setStatus(value)
+                  }
+                }}
               >
                 <SelectTrigger className="w-full sm:w-40">
                   <SelectValue placeholder="Status" />
@@ -983,9 +1022,12 @@ export function AdminUsers() {
                 </SelectContent>
               </Select>
 
+              {/* FIX 5: bail out early if value is null before splitting it */}
               <Select
                 value={`${sortBy}:${sortDirection}`}
                 onValueChange={(value) => {
+                  if (!value) return
+
                   const [field, direction] = value.split(':')
 
                   setSortBy(field)

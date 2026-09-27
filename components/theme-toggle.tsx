@@ -17,7 +17,11 @@ export function ThemeToggle() {
   const [dark, setDark] = useState(false)
 
   useEffect(() => {
-    setDark(getIsDark())
+    // read the SAVED preference instead of the page's current class,
+    // which resets to light on every refresh
+    const isDark = localStorage.getItem('theme') === 'dark'
+    applyTheme(isDark)
+    setDark(isDark)
   }, [])
 
   return (
