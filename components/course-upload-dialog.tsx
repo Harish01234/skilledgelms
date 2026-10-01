@@ -18,8 +18,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-type Mode = "normal" | "presigned";
-type Stage = "idle" | "presign" | "upload" | "finalize";
+type Mode = "normal" | "presigned" | "workflow";
+type Stage = "idle" | "presign" | "upload" | "finalize" | "processing";
 
 type UploadEvent =
   | { type: "started"; courseId: string; totalFiles: number; fileName: string }
@@ -33,11 +33,20 @@ type UploadEvent =
   | { type: "complete"; success: true; course: unknown }
   | { type: "error"; message: string };
 
-// The 3 steps shown in presigned mode, in order
-const presignedSteps: { key: Exclude<Stage, "idle">; label: string }[] = [
+// steps shown for "presigned" mode
+const presignedSteps: { key: Exclude<Stage, "idle" | "processing">; label: string }[] = [
   { key: "presign", label: "Get upload link" },
   { key: "upload", label: "Upload to storage" },
   { key: "finalize", label: "Create course" },
+];
+
+// steps shown for "workflow" mode — same first two, but the last step
+// is "processing" (waiting on the background workflow) instead of one
+// blocking request
+const workflowSteps: { key: Exclude<Stage, "idle" | "finalize">; label: string }[] = [
+  { key: "presign", label: "Get upload link" },
+  { key: "upload", label: "Upload to storage" },
+  { key: "processing", label: "Processing in the background" },
 ];
 
 // PUT the zip straight to B2. XMLHttpRequest is used instead of fetch
@@ -76,6 +85,34 @@ function putWithProgress(
   });
 }
 
+// Ask the server every 2 seconds whether the background workflow finished.
+async function waitForRun(runId: string) {
+  const startedAt = Date.now();
+
+  while (Date.now() - startedAt < 10 * 60 * 1000) {
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    const res = await fetch(
+      "/api/courses/finalize2/status?runId=" + encodeURIComponent(runId)
+    );
+    if (!res.ok) continue;
+
+    const { status } = await res.json();
+
+    if (status === "completed") return;
+
+    if (status === "failed" || status === "cancelled") {
+      throw new Error(
+        "Processing the package failed. Check the run in the Workflows tab on Vercel."
+      );
+    }
+  }
+
+  throw new Error(
+    "Processing is taking too long. Check the Workflows tab on Vercel."
+  );
+}
+
 export function CourseUploadDialog() {
   const router = useRouter();
 
@@ -93,7 +130,7 @@ export function CourseUploadDialog() {
   const [percent, setPercent] = useState(0);
   const [currentFile, setCurrentFile] = useState<string | null>(null);
 
-  // presigned mode progress (browser -> B2)
+  // presigned / workflow mode progress (browser -> B2)
   const [stage, setStage] = useState<Stage>("idle");
   const [uploadPercent, setUploadPercent] = useState(0);
 
@@ -124,7 +161,7 @@ export function CourseUploadDialog() {
     if (!res.ok || !res.body) {
       const body = await res.json().catch(() => ({}));
       throw new Error(
-        body.error ?? "Upload failed. Files over about 4 MB need Presigned upload."
+        body.error ?? "Upload failed. Files over about 4 MB need Presigned or Workflow upload."
       );
     }
 
@@ -138,7 +175,6 @@ export function CourseUploadDialog() {
 
       buffer += decoder.decode(value, { stream: true });
 
-      // ndjson: one JSON object per line, keep any partial line for next chunk
       const lines = buffer.split("\n");
       buffer = lines.pop() ?? "";
 
@@ -163,9 +199,9 @@ export function CourseUploadDialog() {
     }
   }
 
-  // ---------- PRESIGNED: browser -> B2 directly ----------
-  async function submitPresigned(selectedFile: File) {
-    // step 1: ask your server for the temporary upload link
+  // shared by "presigned" and "workflow" modes: get the link, upload
+  // straight to B2. Returns the B2 key so the caller decides what to do next.
+  async function presignAndUpload(selectedFile: File) {
     setStage("presign");
 
     const presignRes = await fetch("/api/courses/presign", {
@@ -181,12 +217,17 @@ export function CourseUploadDialog() {
 
     const { url, key } = await presignRes.json();
 
-    // step 2: upload the zip straight to B2 with that link
     setStage("upload");
     setUploadPercent(0);
     await putWithProgress(url, selectedFile, setUploadPercent);
 
-    // step 3: tell your server the zip is there, so it creates the course
+    return key;
+  }
+
+  // ---------- PRESIGNED: browser -> B2, then one blocking finalize call ----------
+  async function submitPresigned(selectedFile: File) {
+    const key = await presignAndUpload(selectedFile);
+
     setStage("finalize");
 
     const finalizeRes = await fetch("/api/courses/finalize", {
@@ -199,6 +240,27 @@ export function CourseUploadDialog() {
       const body = await finalizeRes.json().catch(() => ({}));
       throw new Error(body.error ?? "Could not create the course.");
     }
+  }
+
+  // ---------- WORKFLOW: browser -> B2, then a background run you poll ----------
+  async function submitWorkflow(selectedFile: File) {
+    const key = await presignAndUpload(selectedFile);
+
+    setStage("processing");
+
+    const finalizeRes = await fetch("/api/courses/finalize2", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key, title, description }),
+    });
+
+    if (!finalizeRes.ok) {
+      const body = await finalizeRes.json().catch(() => ({}));
+      throw new Error(body.error ?? "Could not start processing.");
+    }
+
+    const { runId } = await finalizeRes.json();
+    await waitForRun(runId);
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -216,8 +278,10 @@ export function CourseUploadDialog() {
     try {
       if (mode === "normal") {
         await submitNormal(file);
-      } else {
+      } else if (mode === "presigned") {
         await submitPresigned(file);
+      } else {
+        await submitWorkflow(file);
       }
 
       setOpen(false);
@@ -230,13 +294,19 @@ export function CourseUploadDialog() {
     }
   }
 
-  const activeStepIndex = presignedSteps.findIndex((s) => s.key === stage);
+  const steps = mode === "workflow" ? workflowSteps : presignedSteps;
+  const activeStepIndex = steps.findIndex((s) => s.key === stage);
+
+  const modeHints: Record<Mode, string> = {
+    normal: "The file goes through the app. Best for small packages, under about 4 MB.",
+    presigned: "The file goes straight to storage, then the app processes it while you wait.",
+    workflow: "The file goes straight to storage, then a background job processes it. Best for large packages.",
+  };
 
   return (
     <Dialog
       open={open}
       onOpenChange={(next) => {
-        // block closing while an upload is running
         if (loading) return;
         setOpen(next);
         if (!next) resetAll();
@@ -252,11 +322,12 @@ export function CourseUploadDialog() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* mode toggle */}
           <div className="space-y-2">
-            <div className="grid grid-cols-2 gap-1 rounded-lg bg-muted p-1">
+            <div className="grid grid-cols-3 gap-1 rounded-lg bg-muted p-1">
               {(
                 [
-                  { value: "normal", label: "Normal upload" },
-                  { value: "presigned", label: "Presigned upload" },
+                  { value: "normal", label: "Normal" },
+                  { value: "presigned", label: "Presigned" },
+                  { value: "workflow", label: "Workflow" },
                 ] as { value: Mode; label: string }[]
               ).map((option) => (
                 <button
@@ -265,7 +336,7 @@ export function CourseUploadDialog() {
                   disabled={loading}
                   onClick={() => setMode(option.value)}
                   className={cn(
-                    "rounded-md px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed",
+                    "rounded-md px-2 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed",
                     mode === option.value
                       ? "bg-background text-foreground shadow-sm"
                       : "text-muted-foreground hover:text-foreground"
@@ -276,11 +347,7 @@ export function CourseUploadDialog() {
               ))}
             </div>
 
-            <p className="text-xs text-muted-foreground">
-              {mode === "normal"
-                ? "The file goes through the app. Best for small packages, under about 4 MB."
-                : "The file goes straight to storage. Use this for large packages."}
-            </p>
+            <p className="text-xs text-muted-foreground">{modeHints[mode]}</p>
           </div>
 
           <div className="space-y-2">
@@ -339,10 +406,10 @@ export function CourseUploadDialog() {
             </div>
           )}
 
-          {/* PRESIGNED mode: 3-step checklist */}
-          {loading && mode === "presigned" && (
+          {/* PRESIGNED / WORKFLOW mode: step checklist */}
+          {loading && (mode === "presigned" || mode === "workflow") && (
             <ul className="space-y-2 rounded-lg border border-border p-3">
-              {presignedSteps.map((step, index) => {
+              {steps.map((step, index) => {
                 const isDone = index < activeStepIndex;
                 const isActive = index === activeStepIndex;
 
@@ -382,6 +449,12 @@ export function CourseUploadDialog() {
                     {step.key === "finalize" && isActive && (
                       <p className="ml-6 text-xs text-muted-foreground">
                         Unzipping and saving files. This can take a minute for large packages.
+                      </p>
+                    )}
+
+                    {step.key === "processing" && isActive && (
+                      <p className="ml-6 text-xs text-muted-foreground">
+                        Running in the background. Checking every couple of seconds.
                       </p>
                     )}
                   </li>
